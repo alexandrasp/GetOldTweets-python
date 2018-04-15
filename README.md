@@ -95,3 +95,6 @@ pip install -r requirements.txt
 ```
     python Exporter.py --username "barackobama" --maxtweets 10 --toptweets
 ```
+
+##Improvements to save Tweets direct in NoSQL mongo DB if are your choice
+

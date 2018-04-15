@@ -5,6 +5,11 @@ if sys.version_info[0] < 3:
 else:
     import got3 as got
 
+# import python driver to use mongoDB
+from pymongo import MongoClient 
+
+import datetime
+
 def main(argv):
 
 	if len(argv) == 0:
@@ -15,7 +20,6 @@ def main(argv):
 		f = open('exporter_help_text.txt', 'r')
 		print f.read()
 		f.close()
-
 		return
 
 	try:
@@ -54,16 +58,33 @@ def main(argv):
 
 			elif opt == '--output':
 				outputFileName = arg
-				
+		
+		client = MongoClient()
+		db = client.data
+		collection  = db.events
 		outputFile = codecs.open(outputFileName, "w+", "utf-8")
 
-		outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;permalink')
+		outputFile.write('username;date;text;geo;hashtags;istraffic;what;where1;where2;where3;rotuled')
 
 		print('Searching...\n')
 
 		def receiveBuffer(tweets):
 			for t in tweets:
-				outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.retweets, t.favorites, t.text, t.geo, t.mentions, t.hashtags, t.id, t.permalink)))
+				tweet = {
+					'username': t.username,
+					'date': t.date.strftime("%Y-%m-%d %H:%M"),
+					'text': t.text,
+					'geo': t.geo,
+					'hashtags': t.hashtags,
+					'istraffic': 'empty',
+					'what': 'empty',
+					'where1': 'empty',
+					'where2': 'empty',
+					'where3': 'empty',
+					'rotuled': False
+				}
+				collection.insert_one(tweet).inserted_id
+				outputFile.write(('\n%s;%s;"%s";%s;%s;%s;%s;%s;%s;%s;%s' % (t.username, t.date.strftime("%Y-%m-%d %H:%M"), t.text, t.geo, t.hashtags, 'empty', 'empty', 'empty', 'empty', 'empty', 'empty')))
 			outputFile.flush()
 			print('More %d saved on file...\n' % len(tweets))
 
